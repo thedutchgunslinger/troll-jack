@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <title>Troll Jack</title>
+  </head>
+  <style>
+    body, html {
+    margin: 0;
+    padding: 0;
+    }
+    #enterSite {
+    /* padding: 3rem; */
+    margin: 0;
+    background-color: hotpink;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    height: 100vh;
+    width: 100vw;
+    font-size: 4rem;
+    z-index: 100;
+    }
+
+    #content {
+        height: 100vh;
+        width: 100vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 3rem;
+    }
+  </style>
+  <body>
+   <p id="enterSite">click here to enter</p>
+    <div id="content">
+
+        <p id=displayText>Waiting....</p>
+    </div>
+   <!-- <audio oncanplay="myOnCanPlayFunction()"
+   src="trollAudio.mp3">
+</audio> -->
+
+  <script src="/socket.io/socket.io.js"></script>
+
+
+<script>
+    let id;
+    if(localStorage.getItem('id')) {
+       id = localStorage.getItem('id');
+    } else {
+        let id = Math.floor(Math.random() * 1000000);
+        localStorage.setItem('id', id);
+    }
+
+    let audioIsAllowed = false;
+
+    let displayText = document.getElementById('displayText');
+
+    const ctx = new AudioContext();
+let audio;
+fetch("./trollAudio.mp3")
+	.then(data => data.arrayBuffer())
+	.then(arrayBuffer => ctx.decodeAudioData(arrayBuffer))
+	.then(decodedAudio => {
+		audio = decodedAudio;
+        socket.emit('ready', id);
+	})
+
+    function playback(option) {
+        
+  const playSound = ctx.createBufferSource();
+  playSound.buffer = audio;
+  playSound.connect(ctx.destination);
+  if(option === 'play') {
+      playSound.start(ctx.currentTime);
+
+        } else {
+            // reload page
+            location.reload();
+        }
+}
+
+
+
+// function myOnCanPlayFunction() { 
+//    console.log('Can play');
+//    socket.emit('ready', id);
+// }
+  var socket = io();
+
+  let enterSite = document.getElementById('enterSite');
+    enterSite.addEventListener('click', function() {
+        enterSite.style.display = 'none';
+        let silentAudio = new Audio('releaseSlide.mp3');
+        silentAudio.play();
+        audioIsAllowed = true;
+
+        socket.emit('allowed', id);
+    });
+
+    
+    socket.emit('connected', id);
+   
+
+
+    let trollAudio = new Audio('trollAudio.mp3');
+
+  socket.on('play', function(msg) {
+    // trollAudio.play();
+    // console.log(msg);
+    playback('play');
+    displayText.innerHTML = 'Playing attack!';
+
+
+  });
+    socket.on('pause', function(msg) {
+    // trollAudio.pause();
+    // console.log(msg);
+    playback('pause');
+  });
+
+  
+</script>
+  </body>
+</html>

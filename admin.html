@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    #agents {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+    }
+    
+    #agents > div {
+        width: 100px;
+        height: 100px;
+        /* display: flex; */
+        /* justify-content: center; */
+        /* align-items: center;    */
+        background-color: yellow;  
+    }
+
+    #startBtn, #pauseBtn {
+        width: 100px;
+        height: 100px;
+        display: flex;
+        justify-content: center;
+        align-items: center;   
+        background-color: hotpink; 
+        cursor: pointer; 
+    }
+
+    #pauseBtn {
+        background-color: lightblue;
+    }
+
+    .ready, .allowed {
+        width: 25px!important;
+        height: 25px!important;
+        border-radius: 50%;
+        margin: 10px;
+        background-color: red;
+    }
+
+
+    
+</style>
+<body>
+    Admin page
+
+    <h1>Launch attack!</h1>
+    <p id="startBtn">⚠️Start⚠️</p>
+    <p id="pauseBtn">⚠️KILL⚠️</p>
+    <p>Agents:</p>
+    <div id="agents"></div>
+    <script src="/socket.io/socket.io.js"></script>
+
+
+<script>
+    let agents = document.getElementById('agents');
+    let startBtn = document.getElementById('startBtn');
+    let pauseBtn = document.getElementById('pauseBtn');
+    
+  var socket = io();
+
+  startBtn.addEventListener('click', function() {
+    socket.emit('play', 'play');
+    });
+
+    pauseBtn.addEventListener('click', function() {
+    socket.emit('pause', 'pause');
+    });
+
+   socket.on('connected', function(msg) {
+    console.log(msg);
+     let agentReady = document.querySelector('[data-id="'+msg+'"]');
+     if(agentReady == null){
+        // return
+    } else {
+        agentReady.remove();
+    } 
+
+     let agent = document.createElement('div');
+    agent.textContent = msg;
+    let ready = document.createElement('div');
+    ready.className = 'ready';
+    let allowed = document.createElement('div');
+    allowed.className = 'allowed';
+    agent.appendChild(ready);
+    agent.appendChild(allowed);
+    agent.setAttribute('data-id', msg);
+    agents.appendChild(agent);
+  });
+
+  socket.on('ready', function(msg) {
+    console.log(msg);
+    let agentReady = document.querySelector('[data-id="'+msg+'"]');
+    // agentReady.style.backgroundColor = 'yellow';
+    agentReady.childNodes[1].style.backgroundColor = 'green';
+  });
+
+   socket.on('allowed', function(msg) {
+    console.log(msg);
+    let agentReady = document.querySelector('[data-id="'+msg+'"]');
+    // agentReady.style.backgroundColor = 'green';
+    agentReady.childNodes[2].style.backgroundColor = 'green';
+
+  });
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (input.value) {
+      socket.emit('chat message', input.value);
+      input.value = '';
+    }
+  });
+
+  socket.on('play', function(msg) {
+    silentAudio.play();
+
+  });
+</script>
+</body>
+</html>
